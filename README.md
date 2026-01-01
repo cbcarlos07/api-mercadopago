@@ -40,11 +40,14 @@ npm run temporal:worker
 ```
 ![Worker](./print/wordker.png)
 
+
+
 Será possível acessar no seguinte endereço
 
 ```
 http://localhost:8080
 ```
+![Worker2](./print/temporal.png)
 
 
 Agora sim podemos iniciar o projeto
@@ -59,5 +62,8 @@ A aplicação será iniciada na porta 3000
 ## 3. Acessibilidade
 
 Em anexo está o arquivo  [Insomnia_2026-01-01.yaml](./scripts/Insomnia_2026-01-01.yaml)  para importar no insmonia para testar
+
+![Insominia](./print/insomnia1.png)
+![Insominia2](./print/insomnia2.png)
 
 

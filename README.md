@@ -63,7 +63,7 @@ Para disponibiliar a api para a web eu usei o [ngrok](https://www.npmjs.com/pack
 
 ```
 npm install ngrok -g
-ngrok http 8080
+ngrok http 3000
 ```
 
 ## 3. Acessibilidade

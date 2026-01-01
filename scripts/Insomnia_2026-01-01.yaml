@@ -1,0 +1,412 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Desafio EXA
+meta:
+  id: wrk_a05c2a9ee6034a498d4c56ccd6aad23f
+  created: 1767234861526
+  modified: 1767234861526
+  description: ""
+collection:
+  - url: https://api.mercadopago.com/v1/payments/search/
+    name: New Request
+    meta:
+      id: req_f8f42b13b17c4c059b8e7e4c141b87f4
+      created: 1767225894329
+      modified: 1767225938272
+      isPrivate: false
+      description: ""
+      sortKey: -1767225894329
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.2.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer
+          TEST-8457452538831298-102118-2c983e3115bb0032e29f7b3c899e142b-282055935
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - name: payment
+    meta:
+      id: fld_7c3f9e19f70b47808258318e3ac34d5b
+      created: 1767130140149
+      modified: 1767131995747
+      sortKey: -1767130140149
+      description: ""
+    children:
+      - url: http://localhost:3000/api/payment
+        name: create pix
+        meta:
+          id: req_042b3f1a03424ea2a50e29f443910ef9
+          created: 1767130249445
+          modified: 1767130294993
+          isPrivate: false
+          description: ""
+          sortKey: -1767130249445
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"cpf": "12345678901", 
+            	"description": "Pagamento de serviço de consultoria",
+            	"amount": 150.00, 
+            	"paymentMethod": "PIX"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: create credit card
+        meta:
+          id: req_232d0b2e8482487792df513766d036b5
+          created: 1767130317885
+          modified: 1767285762218
+          isPrivate: false
+          description: ""
+          sortKey: -1767130317885
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"cpf": "98765432100", 
+            	"description": "Compra de produto eletrônico", 
+            	"amount": 10, 
+            	"paymentMethod": "CREDIT_CARD"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment/7c4b4ff2-fc1b-42e3-bf23-d4880221ca0d
+        name: buscar por id
+        meta:
+          id: req_a13986536b00460b8dde3e8fdaa1c919
+          created: 1767131773761
+          modified: 1767221464920
+          isPrivate: false
+          description: ""
+          sortKey: -1767131789300
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: sem filtro
+        meta:
+          id: req_2044e83829564ee59ff52a5e16c5d728
+          created: 1767131804839
+          modified: 1767131811994
+          isPrivate: false
+          description: ""
+          sortKey: -1767131804839
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: por cpf
+        meta:
+          id: req_22b71526ca91415b881e679dafcbb89d
+          created: 1767131825088
+          modified: 1767221500066
+          isPrivate: false
+          description: ""
+          sortKey: -1767131804939
+        method: GET
+        parameters:
+          - name: cpf
+            value: "12345678901"
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: por pix
+        meta:
+          id: req_da4e2da1f67b45faa5ec83ae6b4cfb36
+          created: 1767131845930
+          modified: 1767131858742
+          isPrivate: false
+          description: ""
+          sortKey: -1767131845930
+        method: GET
+        parameters:
+          - name: paymentMethod
+            value: PIX
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: por CREDIT_CARD
+        meta:
+          id: req_de136b55d39148c6941423bd65b026f6
+          created: 1767131871635
+          modified: 1767131877487
+          isPrivate: false
+          description: ""
+          sortKey: -1767131846030
+        method: GET
+        parameters:
+          - name: paymentMethod
+            value: CREDIT_CARD
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: por FAIL
+        meta:
+          id: req_a02dd89b261745f0955c09035af5a1ca
+          created: 1767131890694
+          modified: 1767131894324
+          isPrivate: false
+          description: ""
+          sortKey: -1767131890694
+        method: GET
+        parameters:
+          - name: status
+            value: FAIL
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment
+        name: combinando filtros
+        meta:
+          id: req_15e674de29574705a092ef21fc5e78d5
+          created: 1767131917711
+          modified: 1767131923733
+          isPrivate: false
+          description: ""
+          sortKey: -1767131917711
+        method: GET
+        parameters:
+          - name: cpf
+            value: "12345678901"
+            disabled: false
+          - name: paymentMethod
+            value: PIX
+            disabled: false
+          - name: status
+            value: PENDING
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment/1
+        name: atualizar pagamento paid
+        meta:
+          id: req_a0c9d66c49e548a18d3e2ea622ed11c3
+          created: 1767131942522
+          modified: 1767228267353
+          isPrivate: false
+          description: ""
+          sortKey: -1767131942522
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"status": "PAID"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        name: FAIL
+        meta:
+          id: req_af86b1d5e2f746f2842097db3ba4cad7
+          created: 1767131974469
+          modified: 1767131978168
+          isPrivate: false
+          description: ""
+          sortKey: -1767131974469
+        method: PUT
+        body:
+          mimeType: application/json
+          text: '{"status": "FAIL"}'
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        name: description
+        meta:
+          id: req_08ee386761de45c287277dd4e672c3f6
+          created: 1767131994062
+          modified: 1767131996971
+          isPrivate: false
+          description: ""
+          sortKey: -1767131994062
+        method: PUT
+        body:
+          mimeType: application/json
+          text: '{"description": "Pagamento atualizado - consultoria técnica"}'
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/payment/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        name: multiplos campos
+        meta:
+          id: req_6a30b2bea8734607bc1316b601de0ec6
+          created: 1767132007693
+          modified: 1767132012274
+          isPrivate: false
+          description: ""
+          sortKey: -1767132007693
+        method: PUT
+        body:
+          mimeType: application/json
+          text: '{"description": "Descrição atualizada", "status": "PAID"}'
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{api}}/webhook/mercadopago"
+        name: webhook
+        meta:
+          id: req_254d21b132364c16a0fdaf5c38a9169c
+          created: 1767229372811
+          modified: 1767237087057
+          isPrivate: false
+          description: ""
+          sortKey: -1767229372811
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "action": "payment.created",
+              "api_version": "v1",
+              "data": {
+                "id": "1343516425"
+              },
+              "date_created": "2026-01-01T03:08:39Z",
+              "id": 127807718072,
+              "live_mode": false,
+              "type": "payment",
+              "user_id": "282055935"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_c3222a955dd34940927375fc5b6785e9
+    created: 1767130121802
+    modified: 1767130121802
+environments:
+  name: Base Environment
+  meta:
+    id: env_303490b3ef5f444bbc8c8a286317d1e1
+    created: 1767130121798
+    modified: 1767130214388
+    isPrivate: false
+  data:
+    host: http://localhost:3000
+    api: "{{host}}/api/{% request 'folder', '', 0 %}"

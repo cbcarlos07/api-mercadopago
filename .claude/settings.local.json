@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(cmd /c \"npm init -y\")",
+      "Bash(powershell -Command \"npm init -y\")"
+    ]
+  }
+}

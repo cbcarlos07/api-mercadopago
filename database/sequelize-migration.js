@@ -79,6 +79,10 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true,
       },
+      workflow_id: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

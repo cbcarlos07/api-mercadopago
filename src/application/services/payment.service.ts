@@ -15,6 +15,14 @@ import {
 } from '../dtos';
 import { Payment } from '../../domain/entities';
 import { PaymentMethod, PaymentStatus } from '../../domain/enums';
+import { MercadoPagoCallbackSignal, PaymentWorkflowInput, TemporalClientService } from '@/temporal';
+
+export type MercadoPagoStatus =
+  | 'approved'
+  | 'rejected'
+  | 'cancelled'
+  | 'pending';
+
 
 @Injectable()
 export class PaymentService {
@@ -23,6 +31,7 @@ export class PaymentService {
   constructor(
     private readonly paymentRepository: PaymentRepository,
     private readonly mercadoPagoService: MercadoPagoService,
+    private readonly temporalClient: TemporalClientService
   ) {}
 
   async create(dto: CreatePaymentDto): Promise<PaymentResponseDto> {
@@ -38,32 +47,55 @@ export class PaymentService {
     };
 
     const payment = await this.paymentRepository.create(paymentData);
-
-    if (dto.paymentMethod === PaymentMethod.CREDIT_CARD) {
-      try {
-        const date = new Date();
-        const _id = date.getTime();
-
-        const preference = await this.mercadoPagoService.createPreference({
-          items: [
-            {
-              id: _id,
-              title: dto.description,
-              quantity: 1,
-              unit_price: dto.amount,
-            },
-          ],
-          external_reference: externalReference,
-        });
-
+    const paymentInput: PaymentWorkflowInput = {
+          paymentId: payment.id,
+          cpf: paymentData.cpf || '',
+          amount: paymentData.amount ||  0,
+          description: paymentData.description  || '',
+          externalReference: paymentData.externalReference || '',
+          paymentMethod: paymentData.paymentMethod || PaymentMethod.CREDIT_CARD
+        }
+        
+        
+        
+        if (dto.paymentMethod === PaymentMethod.CREDIT_CARD) {
+          try {
+            const date = new Date();
+            console.log('paymentInput', paymentInput);
+            
+            const temporalClient = await this.temporalClient.startCreditCardPaymentWorkflow( paymentInput );
+            console.log('temporalClient',temporalClient);
+        // Busca o init_point via query
+        const initPoint = await this.temporalClient.getInitPoint(temporalClient.workflowId);
+        console.log('Init Point:', initPoint);
+        //const _id = date.getTime();
         await this.paymentRepository.update(payment.id, {
-          mercadoPagoId: preference.id,
-          initPoint: preference.init_point,
+          workflowId: temporalClient.workflowId
         });
 
-        this.logger.log(
-          `Credit card payment created with Mercado Pago preference: ${preference.id}`,
-        );
+
+        // const preference = await this.mercadoPagoService.createPreference({
+        //   items: [
+        //     {
+        //       id: _id,
+        //       title: dto.description,
+        //       quantity: 1,
+        //       unit_price: dto.amount,
+        //     },
+        //   ],
+        //   external_reference: externalReference,
+        // });
+
+        // await this.paymentRepository.update(payment.id, {
+        //   mercadoPagoId: preference.id,
+        //   initPoint: preference.init_point,
+        // });
+
+        // this.logger.log(
+        //   `Credit card payment created with Mercado Pago preference: ${preference.id}`,
+        // );
+        
+        
       } catch (error) {
         this.logger.error('Error creating Mercado Pago preference', error);
         await this.paymentRepository.update(payment.id, {
@@ -148,9 +180,27 @@ export class PaymentService {
       this.logger.log(
         `Payment ${payment.id} updated to status ${newStatus} via webhook`,
       );
+
+      const status = this.isMercadoPagoStatus(paymentInfo.status)
+                    ? paymentInfo.status
+                    : 'approved';
+      const callback: MercadoPagoCallbackSignal = {
+        mercadoPagoPaymentId: payment.mercadoPagoId || '',
+        status
+      }
+      console.log('workflow', payment.workflowId);
+      
+      if( payment && payment.workflowId )
+        this.temporalClient.signalMercadoPagoCallback(payment.workflowId, callback)
     } catch (error) {
       this.logger.error('Error processing Mercado Pago webhook', error);
       throw error;
     }
+    
+    
   }
+
+  private isMercadoPagoStatus(status: string): status is MercadoPagoStatus {
+      return ['approved', 'rejected', 'cancelled', 'pending'].includes(status);
+    }
 }

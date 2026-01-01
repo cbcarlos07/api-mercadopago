@@ -1,6 +1,7 @@
 import {
   proxyActivities,
   defineSignal,
+  defineQuery,
   setHandler,
   condition,
   sleep,
@@ -26,16 +27,22 @@ const activities = proxyActivities<PaymentActivities>({
 export const mercadoPagoCallbackSignal =
   defineSignal<[MercadoPagoCallbackSignal]>('mercadoPagoCallback');
 
+export const getInitPointQuery = defineQuery<string | null>('getInitPoint');
+
 export async function creditCardPaymentWorkflow(
   input: PaymentWorkflowInput,
 ): Promise<PaymentWorkflowResult> {
   let callbackReceived = false;
   let callbackData: MercadoPagoCallbackSignal | null = null;
+  let initPoint: string | null = null;
+  console.log('----> creditCardPaymentWorkflow', input);
 
   setHandler(mercadoPagoCallbackSignal, (data: MercadoPagoCallbackSignal) => {
     callbackReceived = true;
     callbackData = data;
   });
+
+  setHandler(getInitPointQuery, () => initPoint);
 
   try {
     await activities.updatePaymentStatus(input.paymentId, PaymentStatus.PENDING);
@@ -46,8 +53,11 @@ export async function creditCardPaymentWorkflow(
       amount: input.amount,
       externalReference: input.externalReference,
     });
+    console.log('----> payment.workflow', preference);
 
-    await activities.saveMercadoPagoId(input.paymentId, preference.id);
+    initPoint = preference.initPoint;
+
+    await activities.saveMercadoPagoId(input.paymentId, preference.id, preference.initPoint);
 
     const timeoutMs = 30 * 60 * 1000; // 30 minutos
     const received = await condition(() => callbackReceived, timeoutMs);

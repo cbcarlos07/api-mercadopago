@@ -2,7 +2,7 @@ import { Client, Connection } from '@temporalio/client';
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { creditCardPaymentWorkflow, mercadoPagoCallbackSignal } from '../workflows';
+import { creditCardPaymentWorkflow, mercadoPagoCallbackSignal, getInitPointQuery } from '../workflows';
 import { PaymentWorkflowInput, PaymentWorkflowResult, MercadoPagoCallbackSignal } from '../interfaces';
 import { TEMPORAL_CONFIG } from '../config';
 
@@ -57,7 +57,8 @@ export class TemporalClientService implements OnModuleInit, OnModuleDestroy {
       workflowId,
       args: [input],
     });
-
+    console.log('handle', handle);
+    
     return {
       workflowId: handle.workflowId,
       runId: handle.firstExecutionRunId,
@@ -74,8 +75,14 @@ export class TemporalClientService implements OnModuleInit, OnModuleDestroy {
 
     this.logger.log(`Signaling workflow ${workflowId} with callback status: ${callback.status}`);
 
-    const handle = this.client.workflow.getHandle(workflowId);
-    await handle.signal(mercadoPagoCallbackSignal, callback);
+    try {
+      const handle = this.client.workflow.getHandle(workflowId);
+      await handle.signal(mercadoPagoCallbackSignal, callback);
+      
+    } catch (error) {
+      console.log('error signalMercadoPagoCallback',error);
+      
+    }
   }
 
   async getWorkflowResult(workflowId: string): Promise<PaymentWorkflowResult> {
@@ -85,6 +92,29 @@ export class TemporalClientService implements OnModuleInit, OnModuleDestroy {
 
     const handle = this.client.workflow.getHandle(workflowId);
     return await handle.result();
+  }
+
+  async getInitPoint(workflowId: string, maxRetries = 10, delayMs = 500): Promise<string | null> {
+    if (!this.client) {
+      throw new Error('Temporal client not connected');
+    }
+
+    const handle = this.client.workflow.getHandle(workflowId);
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const initPoint = await handle.query(getInitPointQuery);
+        if (initPoint) {
+          return initPoint;
+        }
+      } catch (error) {
+        this.logger.debug(`Waiting for initPoint query to be available (attempt ${i + 1}/${maxRetries})`);
+      }
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+
+    this.logger.warn(`Could not get initPoint after ${maxRetries} attempts`);
+    return null;
   }
 
   async findWorkflowByExternalReference(

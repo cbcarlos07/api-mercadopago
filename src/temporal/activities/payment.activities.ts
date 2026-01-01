@@ -21,13 +21,13 @@ export interface PollStatusResult {
 export interface PaymentActivities {
   updatePaymentStatus(paymentId: number, status: PaymentStatus): Promise<void>;
   createMercadoPagoPreference(input: CreatePreferenceInput): Promise<PreferenceResult>;
-  saveMercadoPagoId(paymentId: number, mercadoPagoId: string): Promise<void>;
+  saveMercadoPagoId(paymentId: number, mercadoPagoId: string, initPoint: string): Promise<void>;
   pollMercadoPagoStatus(externalReference: string): Promise<PollStatusResult | null>;
 }
 
 export function createPaymentActivities(dependencies: {
   paymentRepository: {
-    update: (id: number, data: { status?: PaymentStatus; mercadoPagoId?: string }) => Promise<unknown>;
+    update: (id: number, data: { status?: PaymentStatus; mercadoPagoId?: string, initPoint?: string }) => Promise<unknown>;
     findByExternalReference: (ref: string) => Promise<{ id: number } | null>;
   };
   mercadoPagoService: {
@@ -77,9 +77,10 @@ export function createPaymentActivities(dependencies: {
     async saveMercadoPagoId(
       paymentId: number,
       mercadoPagoId: string,
+      initPoint: string
     ): Promise<void> {
-      await paymentRepository.update(paymentId, { mercadoPagoId });
-      console.log(`[Activity] Saved Mercado Pago ID ${mercadoPagoId} for payment ${paymentId}`);
+      await paymentRepository.update(paymentId, { mercadoPagoId, initPoint });
+      console.log(`[Activity] Saved Mercado Pago ID ${mercadoPagoId} and initPoint for payment ${paymentId}`);
     },
 
     async pollMercadoPagoStatus(

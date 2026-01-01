@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS payments (
     external_reference VARCHAR(255),
     mercado_pago_id VARCHAR(255),
     init_point VARCHAR(255),
+    workflow_id VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -90,5 +91,6 @@ COMMENT ON COLUMN payments.status IS 'Status do pagamento: PENDING, PAID ou FAIL
 COMMENT ON COLUMN payments.external_reference IS 'Referência externa para integração com Mercado Pago';
 COMMENT ON COLUMN payments.mercado_pago_id IS 'ID da preferência no Mercado Pago';
 COMMENT ON COLUMN payments.init_point IS 'URL de checkout do Mercado Pago';
+COMMENT ON COLUMN payments.workflow_id IS 'ID do workflow Temporal associado ao pagamento';
 COMMENT ON COLUMN payments.created_at IS 'Data de criação do registro';
 COMMENT ON COLUMN payments.updated_at IS 'Data da última atualização do registro';

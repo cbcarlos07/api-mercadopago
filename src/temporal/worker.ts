@@ -90,7 +90,7 @@ async function run() {
   const sequelize = await createDatabaseConnection();
 
   const paymentRepository = {
-    async update(id: number, data: { status: PaymentStatus; mercadoPagoId?: string }) {
+    async update(id: number, data: { status?: PaymentStatus; mercadoPagoId?: string; initPoint?: string }) {
       const payment = await Payment.findByPk(id);
       if (payment) {
         await payment.update(data);

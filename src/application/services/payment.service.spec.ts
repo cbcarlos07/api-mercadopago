@@ -5,11 +5,13 @@ import { PaymentRepository } from '../../infrastructure/repositories';
 import { MercadoPagoService } from '../../infrastructure/external';
 import { PaymentMethod, PaymentStatus } from '../../domain/enums';
 import { CreatePaymentDto, UpdatePaymentDto } from '../dtos';
+import { TemporalClientService } from '../../temporal';
 
 describe('PaymentService', () => {
   let service: PaymentService;
   let paymentRepository: jest.Mocked<PaymentRepository>;
   let mercadoPagoService: jest.Mocked<MercadoPagoService>;
+  let temporalClientService: jest.Mocked<TemporalClientService>;
 
   const mockPayment = {
     id: 1,
@@ -21,6 +23,7 @@ describe('PaymentService', () => {
     externalReference: 'ext-ref-123',
     mercadoPagoId: null,
     initPoint: null,
+    workflowId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     update: jest.fn(),
@@ -41,6 +44,13 @@ describe('PaymentService', () => {
       getPaymentInfo: jest.fn(),
     };
 
+    const mockTemporalClientService = {
+      startCreditCardPaymentWorkflow: jest.fn(),
+      getInitPoint: jest.fn(),
+      signalMercadoPagoCallback: jest.fn(),
+      isConnected: jest.fn().mockReturnValue(true),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PaymentService,
@@ -52,12 +62,17 @@ describe('PaymentService', () => {
           provide: MercadoPagoService,
           useValue: mockMercadoPagoService,
         },
+        {
+          provide: TemporalClientService,
+          useValue: mockTemporalClientService,
+        },
       ],
     }).compile();
 
     service = module.get<PaymentService>(PaymentService);
     paymentRepository = module.get(PaymentRepository);
     mercadoPagoService = module.get(MercadoPagoService);
+    temporalClientService = module.get(TemporalClientService);
   });
 
   describe('create', () => {
@@ -81,7 +96,7 @@ describe('PaymentService', () => {
       expect(mercadoPagoService.createPreference).not.toHaveBeenCalled();
     });
 
-    it('should create a CREDIT_CARD payment and call MercadoPago', async () => {
+    it('should create a CREDIT_CARD payment and start Temporal workflow', async () => {
       const createPaymentDto: CreatePaymentDto = {
         cpf: '12345678901',
         description: 'Test Payment',
@@ -94,26 +109,26 @@ describe('PaymentService', () => {
         paymentMethod: PaymentMethod.CREDIT_CARD,
         mercadoPagoId: 'mp-123',
         initPoint: 'https://mercadopago.com/checkout',
+        workflowId: 'workflow-123',
       };
 
       paymentRepository.create.mockResolvedValue(creditCardPayment as any);
       paymentRepository.findById.mockResolvedValue(creditCardPayment as any);
       paymentRepository.update.mockResolvedValue(creditCardPayment as any);
-      mercadoPagoService.createPreference.mockResolvedValue({
-        id: 'mp-123',
-        init_point: 'https://mercadopago.com/checkout',
-        sandbox_init_point: 'https://sandbox.mercadopago.com/checkout',
-        external_reference: 'ext-ref-123',
+      temporalClientService.startCreditCardPaymentWorkflow.mockResolvedValue({
+        workflowId: 'workflow-123',
+        runId: 'run-123',
       });
+      temporalClientService.getInitPoint.mockResolvedValue('https://mercadopago.com/checkout');
 
       const result = await service.create(createPaymentDto);
 
       expect(result).toBeDefined();
       expect(result.paymentMethod).toBe(PaymentMethod.CREDIT_CARD);
-      expect(mercadoPagoService.createPreference).toHaveBeenCalled();
+      expect(temporalClientService.startCreditCardPaymentWorkflow).toHaveBeenCalled();
     });
 
-    it('should set FAIL status if MercadoPago integration fails', async () => {
+    it('should set FAIL status if Temporal workflow fails', async () => {
       const createPaymentDto: CreatePaymentDto = {
         cpf: '12345678901',
         description: 'Test Payment',
@@ -126,8 +141,8 @@ describe('PaymentService', () => {
         ...mockPayment,
         status: PaymentStatus.FAIL,
       } as any);
-      mercadoPagoService.createPreference.mockRejectedValue(
-        new Error('API Error'),
+      temporalClientService.startCreditCardPaymentWorkflow.mockRejectedValue(
+        new Error('Temporal Error'),
       );
 
       await expect(service.create(createPaymentDto)).rejects.toThrow(
@@ -215,6 +230,12 @@ describe('PaymentService', () => {
   });
 
   describe('handleMercadoPagoWebhook', () => {
+    const mockPaymentWithWorkflow = {
+      ...mockPayment,
+      workflowId: 'workflow-123',
+      mercadoPagoId: 'mp-123',
+    };
+
     it('should update payment status to PAID on approved webhook', async () => {
       const paymentInfo = {
         id: 12345,
@@ -225,10 +246,10 @@ describe('PaymentService', () => {
 
       mercadoPagoService.getPaymentInfo.mockResolvedValue(paymentInfo);
       paymentRepository.findByExternalReference.mockResolvedValue(
-        mockPayment as any,
+        mockPaymentWithWorkflow as any,
       );
       paymentRepository.update.mockResolvedValue({
-        ...mockPayment,
+        ...mockPaymentWithWorkflow,
         status: PaymentStatus.PAID,
       } as any);
 
@@ -237,6 +258,10 @@ describe('PaymentService', () => {
       expect(paymentRepository.update).toHaveBeenCalledWith(mockPayment.id, {
         status: PaymentStatus.PAID,
       });
+      expect(temporalClientService.signalMercadoPagoCallback).toHaveBeenCalledWith(
+        'workflow-123',
+        { mercadoPagoPaymentId: 'mp-123', status: 'approved' },
+      );
     });
 
     it('should update payment status to FAIL on rejected webhook', async () => {
@@ -249,10 +274,10 @@ describe('PaymentService', () => {
 
       mercadoPagoService.getPaymentInfo.mockResolvedValue(paymentInfo);
       paymentRepository.findByExternalReference.mockResolvedValue(
-        mockPayment as any,
+        mockPaymentWithWorkflow as any,
       );
       paymentRepository.update.mockResolvedValue({
-        ...mockPayment,
+        ...mockPaymentWithWorkflow,
         status: PaymentStatus.FAIL,
       } as any);
 
@@ -261,6 +286,10 @@ describe('PaymentService', () => {
       expect(paymentRepository.update).toHaveBeenCalledWith(mockPayment.id, {
         status: PaymentStatus.FAIL,
       });
+      expect(temporalClientService.signalMercadoPagoCallback).toHaveBeenCalledWith(
+        'workflow-123',
+        { mercadoPagoPaymentId: 'mp-123', status: 'rejected' },
+      );
     });
 
     it('should ignore non-payment webhook types', async () => {

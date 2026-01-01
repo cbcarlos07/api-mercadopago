@@ -80,6 +80,13 @@ export class Payment extends Model<Payment> {
   })
   initPoint: string | null;
 
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    field: 'workflow_id',
+  })
+  workflowId: string | null;
+
   @CreatedAt
   @Column({ field: 'created_at' })
   createdAt: Date;

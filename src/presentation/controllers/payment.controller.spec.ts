@@ -21,6 +21,7 @@ describe('PaymentController', () => {
     status: PaymentStatus.PENDING,
     externalReference: 'ext-ref-123',
     initPoint: null,
+    workflowId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

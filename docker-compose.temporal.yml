@@ -19,9 +19,9 @@ services:
     container_name: temporal
     image: temporalio/auto-setup:1.22.0
     depends_on:
-      - postgresql
+      - postgres
     environment:
-      - DB=postgresql
+      - DB=postgres
       - DB_PORT=5432
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal

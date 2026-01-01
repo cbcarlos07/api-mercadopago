@@ -10,6 +10,7 @@ export class PaymentResponseDto {
   status: PaymentStatus;
   externalReference: string | null;
   initPoint: string | null;
+  workflowId: string | null;
   createdAt: Date;
   updatedAt: Date;
 
@@ -23,6 +24,7 @@ export class PaymentResponseDto {
     dto.status = payment.status;
     dto.externalReference = payment.externalReference;
     dto.initPoint = payment.initPoint;
+    dto.workflowId = payment.workflowId;
     dto.createdAt = payment.createdAt;
     dto.updatedAt = payment.updatedAt;
     return dto;

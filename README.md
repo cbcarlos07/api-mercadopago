@@ -38,15 +38,26 @@ Após isso inicie o worker
 ```
 npm run temporal:worker
 ```
+![Worker](./print/wordker.png)
+
+Será possível acessar no seguinte endereço
+
+```
+http://localhost:8080
+```
+
 
 Agora sim podemos iniciar o projeto
 
 ```
 npm run start:dev
 ```
+![API](./print/nest.png)
 
-## 3. Acessilidade
+A aplicação será iniciada na porta 3000
 
-Em anexo está o arquivo Insomnia_2026-01-01.yaml para importar no insmonia para testar
+## 3. Acessibilidade
+
+Em anexo está o arquivo  [Insomnia_2026-01-01.yaml](./scripts/Insomnia_2026-01-01.yaml)  para importar no insmonia para testar
 
 

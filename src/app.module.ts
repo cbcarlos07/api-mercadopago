@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { databaseConfig } from './config/database.config';
 import { PaymentModule } from './modules';
+import { TemporalModule } from './temporal';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PaymentModule } from './modules';
       envFilePath: '.env',
     }),
     SequelizeModule.forRoot(databaseConfig()),
+    TemporalModule,
     PaymentModule,
   ],
 })

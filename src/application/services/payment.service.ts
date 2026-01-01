@@ -41,9 +41,13 @@ export class PaymentService {
 
     if (dto.paymentMethod === PaymentMethod.CREDIT_CARD) {
       try {
+        const date = new Date();
+        const _id = date.getTime();
+
         const preference = await this.mercadoPagoService.createPreference({
           items: [
             {
+              id: _id,
               title: dto.description,
               quantity: 1,
               unit_price: dto.amount,
@@ -54,6 +58,7 @@ export class PaymentService {
 
         await this.paymentRepository.update(payment.id, {
           mercadoPagoId: preference.id,
+          initPoint: preference.init_point,
         });
 
         this.logger.log(

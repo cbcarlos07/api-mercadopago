@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 export interface MercadoPagoPreferenceRequest {
   items: Array<{
+    id: number,
     title: string;
     quantity: number;
     unit_price: number;
@@ -81,7 +82,8 @@ export class MercadoPagoService {
 
   async getPaymentInfo(paymentId: string): Promise<MercadoPagoPaymentInfo> {
     const url = `${this.baseUrl}/v1/payments/${paymentId}`;
-
+    console.log('url',url);
+    
     try {
       const response = await fetch(url, {
         method: 'GET',

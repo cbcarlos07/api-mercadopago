@@ -73,6 +73,13 @@ export class Payment extends Model<Payment> {
   })
   mercadoPagoId: string | null;
 
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    field: 'init_point',
+  })
+  initPoint: string | null;
+
   @CreatedAt
   @Column({ field: 'created_at' })
   createdAt: Date;

@@ -9,6 +9,7 @@ export class PaymentResponseDto {
   paymentMethod: PaymentMethod;
   status: PaymentStatus;
   externalReference: string | null;
+  initPoint: string | null;
   createdAt: Date;
   updatedAt: Date;
 
@@ -21,6 +22,7 @@ export class PaymentResponseDto {
     dto.paymentMethod = payment.paymentMethod;
     dto.status = payment.status;
     dto.externalReference = payment.externalReference;
+    dto.initPoint = payment.initPoint;
     dto.createdAt = payment.createdAt;
     dto.updatedAt = payment.updatedAt;
     return dto;

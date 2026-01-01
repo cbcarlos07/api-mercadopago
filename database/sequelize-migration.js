@@ -75,6 +75,10 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true,
       },
+      init_point: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

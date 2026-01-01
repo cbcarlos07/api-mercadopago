@@ -20,6 +20,7 @@ describe('PaymentService', () => {
     status: PaymentStatus.PENDING,
     externalReference: 'ext-ref-123',
     mercadoPagoId: null,
+    initPoint: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     update: jest.fn(),
@@ -92,6 +93,7 @@ describe('PaymentService', () => {
         ...mockPayment,
         paymentMethod: PaymentMethod.CREDIT_CARD,
         mercadoPagoId: 'mp-123',
+        initPoint: 'https://mercadopago.com/checkout',
       };
 
       paymentRepository.create.mockResolvedValue(creditCardPayment as any);

@@ -20,6 +20,7 @@ describe('PaymentController', () => {
     paymentMethod: PaymentMethod.PIX,
     status: PaymentStatus.PENDING,
     externalReference: 'ext-ref-123',
+    initPoint: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

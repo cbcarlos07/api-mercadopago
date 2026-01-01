@@ -21,16 +21,16 @@ export class MercadoPagoWebhookDto {
   date_created?: string;
 
   @IsOptional()
-  @IsString()
-  id?: string;
+  @IsNumber()
+  id?: number;
 
   @IsOptional()
   @IsString()
   type?: string;
 
   @IsOptional()
-  @IsNumber()
-  user_id?: number;
+  @IsString()
+  user_id?: string;
 
   @IsOptional()
   @IsBoolean()

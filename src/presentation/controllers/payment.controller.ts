@@ -59,7 +59,7 @@ export class PaymentController {
     @Body() webhookDto: MercadoPagoWebhookDto,
   ): Promise<{ received: boolean }> {
     
-    if (webhookDto.type === 'payment' && webhookDto.data?.id) {
+    if (webhookDto.type && webhookDto.data?.id) {
       await this.paymentService.handleMercadoPagoWebhook(
         webhookDto.type,
         webhookDto.data.id,

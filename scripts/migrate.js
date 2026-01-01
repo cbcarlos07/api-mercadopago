@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS payments (
     status "enum_payments_status" NOT NULL DEFAULT 'PENDING',
     external_reference VARCHAR(255),
     mercado_pago_id VARCHAR(255),
+    init_point VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -83,7 +84,7 @@ CREATE TRIGGER update_payments_updated_at
 -- =============================================
 
 COMMENT ON TABLE payments IS 'Tabela que armazena os registros de pagamentos';
-COMMENT ON COLUMN payments.id IS 'Identificador único do pagamento (auto-incrementado)';
+COMMENT ON COLUMN payments.id IS 'Identificador único do pagamento (UUID)';
 COMMENT ON COLUMN payments.cpf IS 'CPF do cliente (11 dígitos)';
 COMMENT ON COLUMN payments.description IS 'Descrição da cobrança';
 COMMENT ON COLUMN payments.amount IS 'Valor da transação';
@@ -91,6 +92,7 @@ COMMENT ON COLUMN payments.payment_method IS 'Meio de pagamento: PIX ou CREDIT_C
 COMMENT ON COLUMN payments.status IS 'Status do pagamento: PENDING, PAID ou FAIL';
 COMMENT ON COLUMN payments.external_reference IS 'Referência externa para integração com Mercado Pago';
 COMMENT ON COLUMN payments.mercado_pago_id IS 'ID da preferência no Mercado Pago';
+COMMENT ON COLUMN payments.init_point IS 'URL de checkout do Mercado Pago';
 COMMENT ON COLUMN payments.created_at IS 'Data de criação do registro';
 COMMENT ON COLUMN payments.updated_at IS 'Data da última atualização do registro';
 `;

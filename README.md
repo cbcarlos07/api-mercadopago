@@ -59,6 +59,13 @@ npm run start:dev
 
 A aplicação será iniciada na porta 3000
 
+Para disponibiliar a api para a web eu usei o [ngrok](https://www.npmjs.com/package/ngrok) com o endpoint `/api/payment/webhook/mercadopago`
+
+```
+npm install ngrok -g
+ngrok http 8080
+```
+
 ## 3. Acessibilidade
 
 Em anexo está o arquivo  [Insomnia_2026-01-01.yaml](./scripts/Insomnia_2026-01-01.yaml)  para importar no insmonia para testar
